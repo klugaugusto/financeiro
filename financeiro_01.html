@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanças Pessoais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <h1 class="text-2xl font-bold text-gray-800">💰 Finanças Pessoais</h1>
+                <div class="flex space-x-4">
+                    <button onclick="showPage('dashboard')" class="nav-btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Dashboard</button>
+                    <button onclick="showPage('lancamentos')" class="nav-btn bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Lançamentos</button>
+                    <button onclick="showPage('cartao')" class="nav-btn bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Cartão</button>
+                    <button onclick="showPage('mensal')" class="nav-btn bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Resumo Mensal</button>
+                    <button onclick="showPage('saldos')" class="nav-btn bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Saldos</button>
+                    <button onclick="showPage('analise')" class="nav-btn bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Análise Anual</button>
+                    <button onclick="showPage('configuracoes')" class="nav-btn bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">Configurações</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard" class="page">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Financeiro</h2>
+                <p class="text-gray-600">Controle seu orçamento mensal</p>
+                
+                <!-- Month/Year Selector -->
+                <div class="bg-white rounded-xl shadow-lg p-4 mt-6">
+                    <div class="flex items-center space-x-4">
+                        <label class="text-sm font-semibold text-gray-700">Período:</label>
+                        <select id="dashboard-year" onchange="updateDashboard()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                        </select>
+                        <select id="dashboard-month" onchange="updateDashboard()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="0">Janeiro</option>
+                            <option value="1">Fevereiro</option>
+                            <option value="2">Março</option>
+                            <option value="3">Abril</option>
+                            <option value="4">Maio</option>
+                            <option value="5">Junho</option>
+                            <option value="6">Julho</option>
+                            <option value="7">Agosto</option>
+                            <option value="8">Setembro</option>
+                            <option value="9">Outubro</option>
+                            <option value="10">Novembro</option>
+                            <option value="11">Dezembro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Orçamento Total</h3>
+                    <p class="text-3xl font-bold text-green-600" id="orcamento-total">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Gastos Total</h3>
+                    <p class="text-3xl font-bold text-red-600" id="gastos-total">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Saldo</h3>
+                    <p class="text-3xl font-bold text-blue-600" id="saldo-total">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Saldo Real das Contas</h3>
+                    <p class="text-3xl font-bold text-purple-600" id="saldo-real-contas">R$ 0,00</p>
+                    <p class="text-xs text-gray-500 mt-1">Valor atual nas contas bancárias</p>
+                </div>
+            </div>
+
+            <!-- Annual Summary -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">📊 Resumo Anualizado</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <h4 class="text-sm font-medium text-gray-600 mb-2">Orçamento Anual</h4>
+                        <p class="text-2xl font-bold text-green-600" id="orcamento-anual">R$ 0,00</p>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="text-sm font-medium text-gray-600 mb-2">Gastos Anuais</h4>
+                        <p class="text-2xl font-bold text-red-600" id="gastos-anuais">R$ 0,00</p>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="text-sm font-medium text-gray-600 mb-2">Saldo Anual</h4>
+                        <p class="text-2xl font-bold text-blue-600" id="saldo-anual">R$ 0,00</p>
+                    </div>
+                </div>
+                <div class="mt-4 w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-500" 
+                         id="progress-anual" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 text-center">Progresso do orçamento anual</p>
+            </div>
+
+            <!-- Budget Table -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b">
+                    <h3 class="text-xl font-semibold text-gray-800">Controle de Contas</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Conta</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orçamento</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% do Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gasto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Saldo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="budget-table" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lançamentos Page -->
+    <div id="lancamentos" class="page hidden">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Lançamentos Diários</h2>
+                <p class="text-gray-600">Registre seus gastos do dia a dia</p>
+            </div>
+
+
+
+
+
+            <!-- Add Income Form -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">💰 Lançamento de Receitas</h3>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data</label>
+                        <input type="date" id="income-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Receita</label>
+                        <select id="income-type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">Selecione o tipo</option>
+                            <option value="Salário">Salário</option>
+                            <option value="Dividendos">Dividendos</option>
+                            <option value="Resgate de Aplicação">Resgate de Aplicação</option>
+                            <option value="Freelance">Freelance</option>
+                            <option value="Venda">Venda</option>
+                            <option value="Restituição">Restituição</option>
+                            <option value="Bonificação">Bonificação</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Conta Bancária</label>
+                        <select id="income-bank-account" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Valor</label>
+                        <input type="number" step="0.01" id="income-amount" placeholder="0,00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="addIncome()" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">💰 Adicionar Receita</button>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descrição (opcional)</label>
+                    <input type="text" id="income-description" placeholder="Descrição da receita" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                </div>
+            </div>
+
+            <!-- Transfer Between Accounts -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">🔄 Transferência Entre Contas</h3>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data</label>
+                        <input type="date" id="transfer-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Conta Origem</label>
+                        <select id="transfer-from" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Conta Destino</label>
+                        <select id="transfer-to" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Valor</label>
+                        <input type="number" step="0.01" id="transfer-amount" placeholder="0,00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="addTransfer()" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">🔄 Transferir</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Transaction Form -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">💸 Lançamento de Despesas</h3>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data</label>
+                        <input type="date" id="transaction-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
+                        <select id="transaction-account" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Conta Bancária</label>
+                        <select id="transaction-bank-account" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Valor</label>
+                        <input type="number" step="0.01" id="transaction-amount" placeholder="0,00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="addTransaction()" class="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">💸 Adicionar Despesa</button>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descrição (opcional)</label>
+                    <input type="text" id="transaction-description" placeholder="Descrição do gasto" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+
+            <!-- Transactions List -->
+            <div class="bg-white rounded-xl shadow-lg">
+                <div class="px-6 py-4 bg-gray-50 border-b">
+                    <h3 class="text-xl font-semibold text-gray-800">Lançamentos Recentes</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Conta Bancária</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-table" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cartão Page -->
+    <div id="cartao" class="page hidden">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Cartão de Crédito</h2>
+                <p class="text-gray-600">Controle suas despesas do cartão</p>
+            </div>
+
+            <!-- Billing Cycle Configuration -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">⚙️ Configuração do Ciclo de Faturamento</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dia de Fechamento da Fatura</label>
+                        <select id="billing-close-day" onchange="saveBillingSettings()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="1">Dia 1</option>
+                            <option value="2">Dia 2</option>
+                            <option value="3">Dia 3</option>
+                            <option value="4">Dia 4</option>
+                            <option value="5">Dia 5</option>
+                            <option value="6">Dia 6</option>
+                            <option value="7">Dia 7</option>
+                            <option value="8">Dia 8</option>
+                            <option value="9">Dia 9</option>
+                            <option value="10">Dia 10</option>
+                            <option value="11">Dia 11</option>
+                            <option value="12">Dia 12</option>
+                            <option value="13">Dia 13</option>
+                            <option value="14">Dia 14</option>
+                            <option value="15">Dia 15</option>
+                            <option value="16">Dia 16</option>
+                            <option value="17">Dia 17</option>
+                            <option value="18">Dia 18</option>
+                            <option value="19">Dia 19</option>
+                            <option value="20">Dia 20</option>
+                            <option value="21">Dia 21</option>
+                            <option value="22">Dia 22</option>
+                            <option value="23">Dia 23</option>
+                            <option value="24">Dia 24</option>
+                            <option value="25">Dia 25</option>
+                            <option value="26">Dia 26</option>
+                            <option value="27">Dia 27</option>
+                            <option value="28">Dia 28</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dia de Vencimento</label>
+                        <select id="billing-due-day" onchange="saveBillingSettings()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="1">Dia 1</option>
+                            <option value="2">Dia 2</option>
+                            <option value="3">Dia 3</option>
+                            <option value="4">Dia 4</option>
+                            <option value="5">Dia 5</option>
+                            <option value="6">Dia 6</option>
+                            <option value="7">Dia 7</option>
+                            <option value="8">Dia 8</option>
+                            <option value="9">Dia 9</option>
+                            <option value="10">Dia 10</option>
+                            <option value="11">Dia 11</option>
+                            <option value="12">Dia 12</option>
+                            <option value="13">Dia 13</option>
+                            <option value="14">Dia 14</option>
+                            <option value="15">Dia 15</option>
+                            <option value="16">Dia 16</option>
+                            <option value="17">Dia 17</option>
+                            <option value="18">Dia 18</option>
+                            <option value="19">Dia 19</option>
+                            <option value="20">Dia 20</option>
+                            <option value="21">Dia 21</option>
+                            <option value="22">Dia 22</option>
+                            <option value="23">Dia 23</option>
+                            <option value="24">Dia 24</option>
+                            <option value="25">Dia 25</option>
+                            <option value="26">Dia 26</option>
+                            <option value="27">Dia 27</option>
+                            <option value="28">Dia 28</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-700">
+                        <strong>📅 Como funciona:</strong> Compras feitas após o dia de fechamento serão incluídas na fatura do mês seguinte. 
+                        Por exemplo, se o fechamento é dia 15 e você faz uma compra no dia 16, ela aparecerá na próxima fatura.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Add Credit Card Transaction -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Nova Despesa do Cartão</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data da Compra</label>
+                        <input type="date" id="card-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Valor</label>
+                        <input type="number" step="0.01" id="card-amount" placeholder="0,00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Parcelas</label>
+                        <select id="card-installments" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="1">À vista</option>
+                            <option value="2">2x</option>
+                            <option value="3">3x</option>
+                            <option value="4">4x</option>
+                            <option value="5">5x</option>
+                            <option value="6">6x</option>
+                            <option value="7">7x</option>
+                            <option value="8">8x</option>
+                            <option value="9">9x</option>
+                            <option value="10">10x</option>
+                            <option value="11">11x</option>
+                            <option value="12">12x</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descrição</label>
+                    <input type="text" id="card-description" placeholder="Descrição da compra" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div class="mt-4 p-3 bg-yellow-50 rounded-lg" id="billing-info">
+                    <p class="text-sm text-yellow-700">
+                        <strong>💡 Dica:</strong> Esta compra será incluída na fatura que fecha em <span id="next-close-date"></span>
+                    </p>
+                </div>
+                <div class="mt-4">
+                    <button onclick="addCardTransaction()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors">Adicionar ao Cartão</button>
+                </div>
+            </div>
+
+            <!-- Month Selector for Bill Details -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">🔍 Detalhes da Fatura por Mês</h3>
+                <div class="flex items-center space-x-4 mb-4">
+                    <label class="text-sm font-semibold text-gray-700">Selecionar Fatura:</label>
+                    <select id="bill-year-selector" onchange="updateBillDetails()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                    <select id="bill-month-selector" onchange="updateBillDetails()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="0">Janeiro</option>
+                        <option value="1">Fevereiro</option>
+                        <option value="2">Março</option>
+                        <option value="3">Abril</option>
+                        <option value="4">Maio</option>
+                        <option value="5">Junho</option>
+                        <option value="6">Julho</option>
+                        <option value="7">Agosto</option>
+                        <option value="8">Setembro</option>
+                        <option value="9">Outubro</option>
+                        <option value="10">Novembro</option>
+                        <option value="11">Dezembro</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-blue-800 mb-2">Valor da Fatura</h4>
+                        <p class="text-2xl font-bold text-blue-600" id="selected-bill-amount">R$ 0,00</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Número de Compras</h4>
+                        <p class="text-2xl font-bold text-gray-600" id="selected-bill-count">0</p>
+                    </div>
+                </div>
+                
+                <!-- Bill Details Table -->
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Compras desta Fatura</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Data da Compra</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Parcela</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bill-details-table" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credit Card Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Fatura Atual</h3>
+                    <p class="text-3xl font-bold text-red-600" id="current-bill">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Próximas Parcelas</h3>
+                    <p class="text-3xl font-bold text-orange-600" id="future-installments">R$ 0,00</p>
+                </div>
+            </div>
+
+            <!-- Monthly Bills Table -->
+            <div class="bg-white rounded-xl shadow-lg mb-8">
+                <div class="px-6 py-4 bg-gray-50 border-b">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-semibold text-gray-800">Faturas Mensais</h3>
+                        <div class="flex items-center space-x-4">
+                            <label class="text-sm font-medium text-gray-700">Ano:</label>
+                            <select id="bills-year" onchange="updateCardView()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mês</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor da Fatura</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comparação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthly-bills-table" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Credit Card Transactions -->
+            <div class="bg-white rounded-xl shadow-lg">
+                <div class="px-6 py-4 bg-gray-50 border-b">
+                    <h3 class="text-xl font-semibold text-gray-800">Despesas do Cartão</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parcelas</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor/Parcela</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="card-transactions-table" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Análise Anual Page -->
+    <div id="analise" class="page hidden">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">📊 Análise Anual por Categoria</h2>
+                <p class="text-gray-600">Visualize suas despesas anualizadas distribuídas por tipo</p>
+                
+                <!-- Year Selector -->
+                <div class="bg-white rounded-xl shadow-lg p-4 mt-6">
+                    <div class="flex items-center space-x-4">
+                        <label class="text-sm font-semibold text-gray-700">Ano de Análise:</label>
+                        <select id="analysis-year" onchange="updateAnalysisView()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Orçamento Anual Total</h3>
+                    <p class="text-3xl font-bold text-green-600" id="analysis-total-budget">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Gastos Anuais Total</h3>
+                    <p class="text-3xl font-bold text-red-600" id="analysis-total-spent">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Saldo Anual</h3>
+                    <p class="text-3xl font-bold text-blue-600" id="analysis-total-balance">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Maior Categoria</h3>
+                    <p class="text-lg font-bold text-purple-600" id="analysis-top-category">-</p>
+                    <p class="text-sm text-gray-500" id="analysis-top-amount">R$ 0,00</p>
+                </div>
+            </div>
+
+            <!-- Categories Analysis Table -->
+            <div class="bg-white rounded-xl shadow-lg mb-8">
+                <div class="px-6 py-4 bg-gray-50 border-b">
+                    <h3 class="text-xl font-semibold text-gray-800">Análise Detalhada por Categoria</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orçamento Anual</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gastos Anuais</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Saldo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% do Orçamento</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% dos Gastos</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progresso</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analysis-table" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Monthly Breakdown -->
+            <div class="bg-white rounded-xl shadow-lg">
+                <div class="px-6 py-4 bg-gray-50 border-b">
+                    <h3 class="text-xl font-semibold text-gray-800">Distribuição Mensal das Principais Categorias</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Top 5 Categories Chart -->
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-700 mb-4">Top 5 Categorias por Gasto</h4>
+                            <div id="top-categories-chart" class="space-y-3">
+                            </div>
+                        </div>
+                        
+                        <!-- Monthly Trend -->
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-700 mb-4">Evolução Mensal - Categoria Selecionada</h4>
+                            <div class="mb-3">
+                                <select id="trend-category" onchange="updateMonthlyTrend()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Selecione uma categoria</option>
+                                </select>
+                            </div>
+                            <div id="monthly-trend-chart" class="space-y-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saldos Page -->
+    <div id="saldos" class="page hidden">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Saldos das Contas</h2>
+                <p class="text-gray-600">Acompanhe os saldos de todas suas contas bancárias</p>
+            </div>
+
+            <!-- Total Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Geral</h3>
+                    <p class="text-3xl font-bold text-blue-600" id="total-balance">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Conta Corrente</h3>
+                    <p class="text-3xl font-bold text-green-600" id="checking-balance">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Poupança</h3>
+                    <p class="text-3xl font-bold text-yellow-600" id="savings-balance">R$ 0,00</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Investimentos</h3>
+                    <p class="text-3xl font-bold text-purple-600" id="investments-balance">R$ 0,00</p>
+                </div>
+            </div>
+
+            <!-- Accounts by Bank -->
+            <div id="banks-container">
+            </div>
+        </div>
+    </div>
+
+    <!-- Configurações Page -->
+    <div id="configuracoes" class="page hidden">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Configurações</h2>
+                <p class="text-gray-600">Gerencie categorias e contas bancárias</p>
+            </div>
+
+            <!-- Account Categories Management -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Gerenciar Categorias de Contas</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nova Categoria</label>
+                        <input type="text" id="new-account-name" placeholder="Nome da categoria" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="addAccount()" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Adicionar Categoria</button>
+                    </div>
+                </div>
+                
+                <!-- Accounts List -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div id="accounts-list" class="col-span-3">
+                        <h4 class="text-lg font-semibold text-gray-700 mb-3">Categorias Existentes:</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2" id="accounts-grid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Account Management -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Gerenciar Contas Bancárias</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Banco</label>
+                        <select id="new-bank" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Selecione o banco</option>
+                            <option value="Banco do Brasil">Banco do Brasil</option>
+                            <option value="Caixa">Caixa</option>
+                            <option value="Itaú">Itaú</option>
+                            <option value="Bradesco">Bradesco</option>
+                            <option value="Santander">Santander</option>
+                            <option value="Nubank">Nubank</option>
+                            <option value="Inter">Inter</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Conta</label>
+                        <select id="new-account-type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Selecione o tipo</option>
+                            <option value="Conta Corrente">Conta Corrente</option>
+                            <option value="Poupança">Poupança</option>
+                            <option value="Investimentos">Investimentos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Saldo Inicial</label>
+                        <input type="number" step="0.01" id="new-account-balance" placeholder="0,00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="addBankAccount()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Adicionar Conta</button>
+                    </div>
+                </div>
+                
+                <!-- Bank Accounts List -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Banco</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Saldo</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bank-accounts-table" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumo Mensal Page -->
+    <div id="mensal" class="page hidden">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Resumo Mensal</h2>
+                <p class="text-gray-600">Acompanhe suas despesas ao longo do ano</p>
+            </div>
+
+            <!-- Year Selector -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="flex items-center space-x-4">
+                    <label class="text-lg font-semibold text-gray-700">Ano:</label>
+                    <select id="year-selector" onchange="updateMonthlyView()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Monthly Summary Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="monthly-grid">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Currency formatting function
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+        }
+
+        // Data Storage
+        let accounts = JSON.parse(localStorage.getItem('accounts') || JSON.stringify([
+            'Mercado', 'INSS', 'Plano de Saúde', 'Farmácia', 'Luz', 'Combustível', 'Seguro',
+            'Parcela do carro', 'Lavagem do Carro', 'IPVA e Licenciamento', 'Manutenção - carro',
+            'Telefone', 'Reserva do Vinny', '13º e férias', 'Lanche', 'Beleza', 'Outros',
+            'Cartão de crédito', 'Spotify', 'Assinatura de livro', 'Amazon TV', 'Amazon Prime',
+            'Claro TV', 'Canva PRO', 'Estacionamento', 'Gás'
+        ]));
+
+        let budgets = {};
+        let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        let cardTransactions = JSON.parse(localStorage.getItem('cardTransactions') || '[]');
+
+        // Billing cycle settings
+        let billingSettings = JSON.parse(localStorage.getItem('billingSettings') || JSON.stringify({
+            closeDay: 15,  // Default close day
+            dueDay: 10     // Default due day
+        }));
+
+        // Banks and account types
+        let banks = ['Banco do Brasil', 'Caixa', 'Itaú', 'Bradesco', 'Santander', 'Nubank', 'Inter', 'Outros'];
+        let accountTypes = ['Conta Corrente', 'Poupança', 'Investimentos'];
+        let bankAccounts = JSON.parse(localStorage.getItem('bankAccounts') || '[]');
+        
+        // Initialize budgets - now stored per month/year
+        function getBudgetKey(account, year, month) {
+            return `budget_${account}_${year}_${month}`;
+        }
+
+        function getBudgetForPeriod(account, year, month) {
+            return parseFloat(localStorage.getItem(getBudgetKey(account, year, month)) || '0');
+        }
+
+        function setBudgetForPeriod(account, year, month, value) {
+            localStorage.setItem(getBudgetKey(account, year, month), value);
+        }
+
+        // Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600');
+                btn.classList.add('bg-gray-600');
+            });
+            event.target.classList.remove('bg-gray-600');
+            event.target.classList.add('bg-blue-600');
+
+            if (pageId === 'dashboard') updateDashboard();
+            if (pageId === 'lancamentos') {
+                updateTransactionsTable();
+            }
+            if (pageId === 'configuracoes') {
+                updateAccountsGrid();
+                updateBankAccountsTable();
+            }
+            if (pageId === 'cartao') {
+                loadBillingSettings();
+                updateCardView();
+            }
+            if (pageId === 'mensal') updateMonthlyView();
+            if (pageId === 'saldos') updateSaldosView();
+            if (pageId === 'analise') updateAnalysisView();
+        }
+
+        // Dashboard Functions
+        function updateDashboard() {
+            // Get selected period
+            const selectedYear = parseInt(document.getElementById('dashboard-year')?.value || new Date().getFullYear());
+            const selectedMonth = parseInt(document.getElementById('dashboard-month')?.value || new Date().getMonth());
+            
+            const tableBody = document.getElementById('budget-table');
+            tableBody.innerHTML = '';
+            
+            let totalBudget = 0;
+            let totalSpent = 0;
+
+            // First pass to calculate total budget
+            accounts.forEach(account => {
+                const budget = getBudgetForPeriod(account, selectedYear, selectedMonth);
+                totalBudget += budget;
+            });
+
+            // Second pass to create rows with percentages
+            accounts.forEach(account => {
+                const budget = getBudgetForPeriod(account, selectedYear, selectedMonth);
+                const spent = getAccountSpentForPeriod(account, selectedYear, selectedMonth);
+                const balance = budget - spent;
+                const percentage = totalBudget > 0 ? ((budget / totalBudget) * 100) : 0;
+                
+                totalSpent += spent;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${account}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="relative">
+                            <span class="absolute left-2 top-1 text-gray-500 text-sm">R$</span>
+                            <input type="number" step="0.01" value="${budget}" 
+                                   onchange="updateBudget('${account}', this.value, ${selectedYear}, ${selectedMonth})"
+                                   class="w-28 pl-8 pr-2 py-1 border border-gray-300 rounded text-right">
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-semibold">
+                        ${percentage.toFixed(1)}%
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold">${formatCurrency(spent)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${balance >= 0 ? 'text-green-600' : 'text-red-600'} font-semibold">
+                        ${formatCurrency(balance)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(balance)}">
+                            ${getStatusText(balance)}
+                        </span>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Calculate real balance from bank accounts
+            const realBalance = bankAccounts.reduce((sum, account) => sum + account.balance, 0);
+
+            // Calculate annual totals
+            let annualBudget = 0;
+            let annualSpent = 0;
+            
+            for (let month = 0; month < 12; month++) {
+                accounts.forEach(account => {
+                    annualBudget += getBudgetForPeriod(account, selectedYear, month);
+                    annualSpent += getAccountSpentForPeriod(account, selectedYear, month);
+                });
+            }
+            
+            const annualBalance = annualBudget - annualSpent;
+            const annualProgress = annualBudget > 0 ? Math.min((annualSpent / annualBudget) * 100, 100) : 0;
+
+            document.getElementById('orcamento-total').textContent = formatCurrency(totalBudget);
+            document.getElementById('gastos-total').textContent = formatCurrency(totalSpent);
+            document.getElementById('saldo-total').textContent = formatCurrency(totalBudget - totalSpent);
+            document.getElementById('saldo-real-contas').textContent = formatCurrency(realBalance);
+            
+            // Update annual summary
+            document.getElementById('orcamento-anual').textContent = formatCurrency(annualBudget);
+            document.getElementById('gastos-anuais').textContent = formatCurrency(annualSpent);
+            document.getElementById('saldo-anual').textContent = formatCurrency(annualBalance);
+            document.getElementById('progress-anual').style.width = annualProgress + '%';
+        }
+
+        function updateBudget(account, value, year, month) {
+            const budgetValue = parseFloat(value) || 0;
+            setBudgetForPeriod(account, year, month, budgetValue);
+            
+            // Auto-apply to next month if next month doesn't have a budget set
+            const nextMonth = month === 11 ? 0 : month + 1;
+            const nextYear = month === 11 ? year + 1 : year;
+            const nextMonthBudget = getBudgetForPeriod(account, nextYear, nextMonth);
+            
+            if (nextMonthBudget === 0 && budgetValue > 0) {
+                setBudgetForPeriod(account, nextYear, nextMonth, budgetValue);
+            }
+            
+            updateDashboard();
+        }
+
+        function getAccountSpent(account) {
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            let spent = transactions
+                .filter(t => {
+                    const tDate = new Date(t.date);
+                    return t.account === account && 
+                           tDate.getMonth() === currentMonth && 
+                           tDate.getFullYear() === currentYear &&
+                           !t.type; // Only include regular transactions (not transfers)
+                })
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            // Add credit card amount if account is "Cartão de crédito"
+            if (account === 'Cartão de crédito') {
+                spent += getCurrentCardBill();
+            }
+
+            return spent;
+        }
+
+        function getAccountSpentForPeriod(account, year, month) {
+            let spent = transactions
+                .filter(t => {
+                    const tDate = new Date(t.date);
+                    return t.account === account && 
+                           tDate.getMonth() === month && 
+                           tDate.getFullYear() === year &&
+                           (!t.type || (t.type !== 'transfer_in' && t.type !== 'transfer_out')); // Exclude transfers but include regular transactions
+                })
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            // Add credit card amount if account is "Cartão de crédito"
+            if (account === 'Cartão de crédito') {
+                spent += getCardBillForPeriod(year, month);
+            }
+
+            return spent;
+        }
+
+        function getCardBillForPeriod(year, month) {
+            return cardTransactions.reduce((total, transaction) => {
+                const transactionDate = new Date(transaction.date);
+                
+                // Get the billing month for this transaction based on close day
+                const billingMonth = getBillingMonth(transactionDate);
+                
+                // Calculate how many months from the billing month to the requested period
+                const monthsFromBilling = (year - billingMonth.year) * 12 + (month - billingMonth.month);
+                
+                if (monthsFromBilling >= 0 && monthsFromBilling < transaction.installments) {
+                    return total + transaction.installmentAmount;
+                }
+                return total;
+            }, 0);
+        }
+
+        function getStatusClass(balance) {
+            if (balance > 0) return 'bg-green-100 text-green-800';
+            if (balance === 0) return 'bg-yellow-100 text-yellow-800';
+            return 'bg-red-100 text-red-800';
+        }
+
+        function getStatusText(balance) {
+            if (balance > 0) return 'Dentro do orçamento';
+            if (balance === 0) return 'No limite';
+            return 'Acima do orçamento';
+        }
+
+        // Account Management Functions
+        function addAccount() {
+            const accountName = document.getElementById('new-account-name').value.trim();
+            
+            if (!accountName) {
+                alert('Por favor, digite o nome da categoria.');
+                return;
+            }
+            
+            if (accounts.includes(accountName)) {
+                alert('Esta categoria já existe!');
+                return;
+            }
+            
+            accounts.push(accountName);
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+            
+            document.getElementById('new-account-name').value = '';
+            updateAccountsGrid();
+            updateTransactionAccountSelect();
+            alert('Categoria adicionada com sucesso!');
+        }
+
+        function editAccount(oldName) {
+            const newName = prompt('Digite o novo nome da categoria:', oldName);
+            
+            if (!newName || newName.trim() === '') {
+                return;
+            }
+            
+            const trimmedNewName = newName.trim();
+            
+            if (trimmedNewName === oldName) {
+                return;
+            }
+            
+            if (accounts.includes(trimmedNewName)) {
+                alert('Esta categoria já existe!');
+                return;
+            }
+            
+            // Update accounts array
+            const index = accounts.indexOf(oldName);
+            if (index !== -1) {
+                accounts[index] = trimmedNewName;
+                localStorage.setItem('accounts', JSON.stringify(accounts));
+                
+                // Update all existing transactions with the old account name
+                transactions.forEach(transaction => {
+                    if (transaction.account === oldName) {
+                        transaction.account = trimmedNewName;
+                    }
+                });
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                
+                // Update budgets - need to migrate budget data from old name to new name
+                // Get all budget keys for the old account name
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith(`budget_${oldName}_`)) {
+                        const value = localStorage.getItem(key);
+                        const newKey = key.replace(`budget_${oldName}_`, `budget_${trimmedNewName}_`);
+                        localStorage.setItem(newKey, value);
+                        localStorage.removeItem(key);
+                    }
+                }
+                
+                updateAccountsGrid();
+                updateTransactionAccountSelect();
+                updateDashboard();
+                alert('Categoria atualizada com sucesso!');
+            }
+        }
+
+        function deleteAccount(accountName) {
+            if (accountName === 'Cartão de crédito') {
+                alert('A categoria "Cartão de crédito" não pode ser excluída pois é essencial para o sistema.');
+                return;
+            }
+            
+            const hasTransactions = transactions.some(t => t.account === accountName);
+            
+            if (hasTransactions) {
+                if (!confirm(`A categoria "${accountName}" possui lançamentos associados. Tem certeza que deseja excluí-la? Todos os lançamentos desta categoria também serão removidos.`)) {
+                    return;
+                }
+                
+                // Remove transactions with this account
+                transactions = transactions.filter(t => t.account !== accountName);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+            } else {
+                if (!confirm(`Tem certeza que deseja excluir a categoria "${accountName}"?`)) {
+                    return;
+                }
+            }
+            
+            // Remove from accounts array
+            accounts = accounts.filter(acc => acc !== accountName);
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+            
+            // Remove all budget entries for this account
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(`budget_${accountName}_`)) {
+                    localStorage.removeItem(key);
+                }
+            }
+            
+            updateAccountsGrid();
+            updateTransactionAccountSelect();
+            updateDashboard();
+            alert('Categoria excluída com sucesso!');
+        }
+
+        function updateAccountsGrid() {
+            const grid = document.getElementById('accounts-grid');
+            grid.innerHTML = '';
+            
+            accounts.forEach(account => {
+                const accountDiv = document.createElement('div');
+                accountDiv.className = 'bg-gray-50 border border-gray-200 rounded-lg p-3 flex justify-between items-center';
+                accountDiv.innerHTML = `
+                    <span class="text-sm font-medium text-gray-700">${account}</span>
+                    <div class="flex space-x-1">
+                        <button onclick="editAccount('${account.replace(/'/g, "\\'")}')" 
+                                class="text-blue-600 hover:text-blue-800 text-xs px-2 py-1 rounded">
+                            ✏️
+                        </button>
+                        <button onclick="deleteAccount('${account.replace(/'/g, "\\'")}')" 
+                                class="text-red-600 hover:text-red-800 text-xs px-2 py-1 rounded">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(accountDiv);
+            });
+        }
+
+        function updateTransactionAccountSelect() {
+            const select = document.getElementById('transaction-account');
+            const currentValue = select.value;
+            
+            select.innerHTML = '<option value="">Selecione uma categoria</option>';
+            accounts.forEach(account => {
+                const option = document.createElement('option');
+                option.value = account;
+                option.textContent = account;
+                if (account === currentValue) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+
+        // Bank Account Functions
+        function initializeBankForms() {
+            // Initialize bank selectors
+            const bankSelects = ['new-bank'];
+            bankSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.innerHTML = '<option value="">Selecione o banco</option>';
+                    banks.forEach(bank => {
+                        const option = document.createElement('option');
+                        option.value = bank;
+                        option.textContent = bank;
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+            // Initialize account type selectors
+            const typeSelects = ['new-account-type'];
+            typeSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.innerHTML = '<option value="">Selecione o tipo</option>';
+                    accountTypes.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type;
+                        option.textContent = type;
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+            updateBankAccountSelectors();
+            updateBankAccountsTable();
+        }
+
+        function addBankAccount() {
+            const bank = document.getElementById('new-bank').value;
+            const accountType = document.getElementById('new-account-type').value;
+            const balance = parseFloat(document.getElementById('new-account-balance').value) || 0;
+
+            if (!bank || !accountType) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            const accountName = `${bank} - ${accountType}`;
+            const existingAccount = bankAccounts.find(acc => acc.name === accountName);
+            
+            if (existingAccount) {
+                alert('Esta conta já existe!');
+                return;
+            }
+
+            const bankAccount = {
+                id: Date.now(),
+                name: accountName,
+                bank,
+                type: accountType,
+                balance
+            };
+
+            bankAccounts.push(bankAccount);
+            localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
+
+            // Clear form
+            document.getElementById('new-bank').value = '';
+            document.getElementById('new-account-type').value = '';
+            document.getElementById('new-account-balance').value = '';
+
+            updateBankAccountsTable();
+            updateBankAccountSelectors();
+            alert('Conta bancária adicionada com sucesso!');
+        }
+
+        function updateBankAccountsTable() {
+            const tableBody = document.getElementById('bank-accounts-table');
+            tableBody.innerHTML = '';
+
+            bankAccounts.forEach(account => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-4 py-2 text-sm text-gray-900">${account.bank}</td>
+                    <td class="px-4 py-2 text-sm text-gray-900">${account.type}</td>
+                    <td class="px-4 py-2 text-sm font-semibold ${account.balance >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${formatCurrency(account.balance)}
+                    </td>
+                    <td class="px-4 py-2 text-sm text-gray-500">
+                        <button onclick="deleteBankAccount(${account.id})" 
+                                class="text-red-600 hover:text-red-900 text-sm">Excluir</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function deleteBankAccount(id) {
+            if (confirm('Tem certeza que deseja excluir esta conta bancária?')) {
+                bankAccounts = bankAccounts.filter(acc => acc.id !== id);
+                localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
+                updateBankAccountsTable();
+                updateBankAccountSelectors();
+            }
+        }
+
+        function updateBankAccountSelectors() {
+            const selectors = ['transaction-bank-account', 'transfer-from', 'transfer-to', 'income-bank-account'];
+            
+            selectors.forEach(selectorId => {
+                const select = document.getElementById(selectorId);
+                if (select) {
+                    select.innerHTML = '<option value="">Selecione uma conta</option>';
+                    
+                    bankAccounts.forEach(account => {
+                        const option = document.createElement('option');
+                        option.value = account.id;
+                        option.textContent = `${account.name} (${formatCurrency(account.balance)})`;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        function addIncome() {
+            const date = document.getElementById('income-date').value;
+            const incomeType = document.getElementById('income-type').value;
+            const bankAccountId = parseInt(document.getElementById('income-bank-account').value);
+            const amount = parseFloat(document.getElementById('income-amount').value);
+            const description = document.getElementById('income-description').value;
+
+            if (!date || !incomeType || !bankAccountId || !amount || amount <= 0) {
+                alert('Por favor, preencha todos os campos obrigatórios com valores válidos.');
+                return;
+            }
+
+            const bankAccount = bankAccounts.find(acc => acc.id === bankAccountId);
+            if (!bankAccount) {
+                alert('Conta bancária não encontrada.');
+                return;
+            }
+
+            // Update bank account balance (add income)
+            bankAccount.balance += amount;
+
+            const incomeTransaction = {
+                id: Date.now(),
+                date,
+                account: incomeType,
+                bankAccountId,
+                bankAccountName: bankAccount.name,
+                amount: -amount, // Negative to show as income (green)
+                description: description || `${incomeType} recebido`,
+                type: 'income'
+            };
+
+            transactions.unshift(incomeTransaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
+
+            // Clear form
+            document.getElementById('income-type').value = '';
+            document.getElementById('income-bank-account').value = '';
+            document.getElementById('income-amount').value = '';
+            document.getElementById('income-description').value = '';
+
+            updateTransactionsTable();
+            updateBankAccountsTable();
+            updateBankAccountSelectors();
+            alert('Receita adicionada com sucesso!');
+        }
+
+        function addTransfer() {
+            const date = document.getElementById('transfer-date').value;
+            const fromAccountId = parseInt(document.getElementById('transfer-from').value);
+            const toAccountId = parseInt(document.getElementById('transfer-to').value);
+            const amount = parseFloat(document.getElementById('transfer-amount').value);
+
+            if (!date || !fromAccountId || !toAccountId || !amount) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            if (fromAccountId === toAccountId) {
+                alert('As contas de origem e destino devem ser diferentes.');
+                return;
+            }
+
+            const fromAccount = bankAccounts.find(acc => acc.id === fromAccountId);
+            const toAccount = bankAccounts.find(acc => acc.id === toAccountId);
+
+            if (fromAccount.balance < amount) {
+                alert('Saldo insuficiente na conta de origem.');
+                return;
+            }
+
+            // Update balances
+            fromAccount.balance -= amount;
+            toAccount.balance += amount;
+
+            // Create transfer transactions
+            const transferOut = {
+                id: Date.now(),
+                date,
+                account: 'Transferência',
+                bankAccountId: fromAccountId,
+                bankAccountName: fromAccount.name,
+                amount: amount,
+                description: `Transferência para ${toAccount.name}`,
+                type: 'transfer_out'
+            };
+
+            const transferIn = {
+                id: Date.now() + 1,
+                date,
+                account: 'Transferência',
+                bankAccountId: toAccountId,
+                bankAccountName: toAccount.name,
+                amount: -amount, // Negative to show as income
+                description: `Transferência de ${fromAccount.name}`,
+                type: 'transfer_in'
+            };
+
+            transactions.unshift(transferOut, transferIn);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
+
+            // Clear form
+            document.getElementById('transfer-amount').value = '';
+
+            updateBankAccountsTable();
+            updateBankAccountSelectors();
+            updateTransactionsTable();
+            alert('Transferência realizada com sucesso!');
+        }
+
+        // Transactions Functions
+        function initializeTransactionForm() {
+            updateTransactionAccountSelect();
+
+            // Set today's date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transaction-date').value = today;
+            document.getElementById('transfer-date').value = today;
+            document.getElementById('income-date').value = today;
+        }
+
+        function addTransaction() {
+            const date = document.getElementById('transaction-date').value;
+            const account = document.getElementById('transaction-account').value;
+            const bankAccountId = parseInt(document.getElementById('transaction-bank-account').value);
+            const amount = parseFloat(document.getElementById('transaction-amount').value);
+            const description = document.getElementById('transaction-description').value;
+
+            if (!date || !account || !bankAccountId || !amount || amount <= 0) {
+                alert('Por favor, preencha todos os campos obrigatórios com valores válidos.');
+                return;
+            }
+
+            const bankAccount = bankAccounts.find(acc => acc.id === bankAccountId);
+            if (!bankAccount) {
+                alert('Conta bancária não encontrada.');
+                return;
+            }
+
+            // Check if account has sufficient balance
+            if (bankAccount.balance < amount) {
+                if (!confirm(`Saldo insuficiente na conta ${bankAccount.name}. Saldo atual: ${formatCurrency(bankAccount.balance)}. Deseja continuar mesmo assim?`)) {
+                    return;
+                }
+            }
+
+            // Update bank account balance
+            bankAccount.balance -= amount;
+
+            const transaction = {
+                id: Date.now(),
+                date,
+                account,
+                bankAccountId,
+                bankAccountName: bankAccount.name,
+                amount,
+                description: description || 'Sem descrição'
+            };
+
+            transactions.unshift(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
+
+            // Clear form
+            document.getElementById('transaction-account').value = '';
+            document.getElementById('transaction-bank-account').value = '';
+            document.getElementById('transaction-amount').value = '';
+            document.getElementById('transaction-description').value = '';
+
+            updateTransactionsTable();
+            updateBankAccountsTable();
+            updateBankAccountSelectors();
+            alert('Lançamento adicionado com sucesso!');
+        }
+
+        function updateTransactionsTable() {
+            const tableBody = document.getElementById('transactions-table');
+            tableBody.innerHTML = '';
+
+            transactions.slice(0, 50).forEach(transaction => {
+                const row = document.createElement('tr');
+                const isIncome = transaction.type === 'income' || transaction.type === 'transfer_in';
+                const amountColor = isIncome ? 'text-green-600' : 'text-red-600';
+                const displayAmount = Math.abs(transaction.amount);
+                const prefix = isIncome ? '+' : '';
+                
+                // Add emoji based on transaction type
+                let emoji = '';
+                if (transaction.type === 'income') emoji = '💰';
+                else if (transaction.type === 'transfer_in' || transaction.type === 'transfer_out') emoji = '🔄';
+                else emoji = '💸';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${new Date(transaction.date).toLocaleDateString('pt-BR')}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${emoji} ${transaction.account}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${transaction.bankAccountName || 'N/A'}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${transaction.description}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold ${amountColor}">
+                        ${prefix}${formatCurrency(displayAmount)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button onclick="deleteTransaction(${transaction.id})" 
+                                class="text-red-600 hover:text-red-900 text-sm">Excluir</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Tem certeza que deseja excluir este lançamento?')) {
+                const transaction = transactions.find(t => t.id === id);
+                
+                if (transaction && transaction.bankAccountId) {
+                    const bankAccount = bankAccounts.find(acc => acc.id === transaction.bankAccountId);
+                    if (bankAccount) {
+                        // Reverse the transaction effect on balance
+                        if (transaction.type === 'income' || transaction.type === 'transfer_in') {
+                            bankAccount.balance += transaction.amount; // Remove the income (amount is negative for income)
+                        } else {
+                            bankAccount.balance += transaction.amount; // Add back the expense
+                        }
+                        localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
+                    }
+                }
+                
+                transactions = transactions.filter(t => t.id !== id);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                updateTransactionsTable();
+                updateBankAccountsTable();
+                updateBankAccountSelectors();
+            }
+        }
+
+        // Billing Cycle Functions
+        function saveBillingSettings() {
+            const closeDay = parseInt(document.getElementById('billing-close-day').value);
+            const dueDay = parseInt(document.getElementById('billing-due-day').value);
+            
+            billingSettings = { closeDay, dueDay };
+            localStorage.setItem('billingSettings', JSON.stringify(billingSettings));
+            
+            updateBillingInfo();
+            updateCardView(); // Refresh card view to reflect new billing cycle
+        }
+
+        function loadBillingSettings() {
+            document.getElementById('billing-close-day').value = billingSettings.closeDay;
+            document.getElementById('billing-due-day').value = billingSettings.dueDay;
+            updateBillingInfo();
+        }
+
+        function updateBillingInfo() {
+            const today = new Date();
+            const nextCloseDate = getNextCloseDate(today);
+            
+            document.getElementById('next-close-date').textContent = 
+                nextCloseDate.toLocaleDateString('pt-BR');
+        }
+
+        function getNextCloseDate(purchaseDate) {
+            const date = new Date(purchaseDate);
+            const closeDay = billingSettings.closeDay;
+            
+            // If purchase is after close day of current month, next close is next month
+            if (date.getDate() > closeDay) {
+                return new Date(date.getFullYear(), date.getMonth() + 1, closeDay);
+            } else {
+                return new Date(date.getFullYear(), date.getMonth(), closeDay);
+            }
+        }
+
+        function getBillingMonth(purchaseDate) {
+            const date = new Date(purchaseDate);
+            const closeDay = billingSettings.closeDay;
+            
+            // If purchase is after close day, it goes to next month's bill
+            if (date.getDate() > closeDay) {
+                const nextMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+                return {
+                    year: nextMonth.getFullYear(),
+                    month: nextMonth.getMonth()
+                };
+            } else {
+                return {
+                    year: date.getFullYear(),
+                    month: date.getMonth()
+                };
+            }
+        }
+
+        // Credit Card Functions
+        function addCardTransaction() {
+            const date = document.getElementById('card-date').value;
+            const amount = parseFloat(document.getElementById('card-amount').value);
+            const installments = parseInt(document.getElementById('card-installments').value);
+            const description = document.getElementById('card-description').value;
+
+            if (!date || !amount || !description) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            const cardTransaction = {
+                id: Date.now(),
+                date,
+                amount,
+                installments,
+                description,
+                installmentAmount: amount / installments
+            };
+
+            cardTransactions.unshift(cardTransaction);
+            localStorage.setItem('cardTransactions', JSON.stringify(cardTransactions));
+
+            // Clear form
+            document.getElementById('card-amount').value = '';
+            document.getElementById('card-description').value = '';
+
+            updateCardView();
+            alert('Despesa do cartão adicionada com sucesso!');
+        }
+
+        function updateCardView() {
+            updateCardSummary();
+            updateMonthlyBillsTable();
+            updateCardTransactionsTable();
+            updateBillDetails();
+        }
+
+        function updateBillDetails() {
+            const selectedYear = parseInt(document.getElementById('bill-year-selector')?.value || new Date().getFullYear());
+            const selectedMonth = parseInt(document.getElementById('bill-month-selector')?.value || new Date().getMonth());
+            
+            // Calculate bill amount for selected month
+            const billAmount = getCardBillForPeriod(selectedYear, selectedMonth);
+            
+            // Get transactions that contribute to this bill
+            const billTransactions = [];
+            
+            cardTransactions.forEach(transaction => {
+                const transactionDate = new Date(transaction.date);
+                const billingMonth = getBillingMonth(transactionDate);
+                
+                // Calculate how many months from the billing month to the selected period
+                const monthsFromBilling = (selectedYear - billingMonth.year) * 12 + (selectedMonth - billingMonth.month);
+                
+                if (monthsFromBilling >= 0 && monthsFromBilling < transaction.installments) {
+                    const installmentNumber = monthsFromBilling + 1;
+                    billTransactions.push({
+                        ...transaction,
+                        installmentNumber,
+                        installmentAmount: transaction.installmentAmount
+                    });
+                }
+            });
+            
+            // Update summary
+            document.getElementById('selected-bill-amount').textContent = formatCurrency(billAmount);
+            document.getElementById('selected-bill-count').textContent = billTransactions.length;
+            
+            // Update table
+            const tableBody = document.getElementById('bill-details-table');
+            tableBody.innerHTML = '';
+            
+            if (billTransactions.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="4" class="px-4 py-8 text-center text-gray-500">
+                        Nenhuma compra encontrada para esta fatura
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            } else {
+                billTransactions.forEach(transaction => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-4 py-2 text-sm text-gray-900">
+                            ${new Date(transaction.date).toLocaleDateString('pt-BR')}
+                        </td>
+                        <td class="px-4 py-2 text-sm text-gray-900">${transaction.description}</td>
+                        <td class="px-4 py-2 text-sm text-gray-500">
+                            ${transaction.installmentNumber}/${transaction.installments}
+                        </td>
+                        <td class="px-4 py-2 text-sm font-semibold text-red-600">
+                            ${formatCurrency(transaction.installmentAmount)}
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        function updateCardSummary() {
+            const currentBill = getCurrentCardBill();
+            const futureInstallments = getFutureInstallments();
+
+            document.getElementById('current-bill').textContent = formatCurrency(currentBill);
+            document.getElementById('future-installments').textContent = formatCurrency(futureInstallments);
+        }
+
+        function getCurrentCardBill() {
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+
+            return cardTransactions.reduce((total, transaction) => {
+                const transactionDate = new Date(transaction.date);
+                
+                // Get the billing month for this transaction based on close day
+                const billingMonth = getBillingMonth(transactionDate);
+                
+                // Calculate how many months from the billing month to current period
+                const monthsFromBilling = (currentYear - billingMonth.year) * 12 + (currentMonth - billingMonth.month);
+                
+                if (monthsFromBilling >= 0 && monthsFromBilling < transaction.installments) {
+                    return total + transaction.installmentAmount;
+                }
+                return total;
+            }, 0);
+        }
+
+        function getFutureInstallments() {
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+
+            return cardTransactions.reduce((total, transaction) => {
+                const transactionDate = new Date(transaction.date);
+                
+                // Get the billing month for this transaction based on close day
+                const billingMonth = getBillingMonth(transactionDate);
+                
+                // Calculate how many months from the billing month to current period
+                const monthsFromBilling = (currentYear - billingMonth.year) * 12 + (currentMonth - billingMonth.month);
+                
+                const remainingInstallments = transaction.installments - monthsFromBilling - 1;
+                if (remainingInstallments > 0) {
+                    return total + (transaction.installmentAmount * remainingInstallments);
+                }
+                return total;
+            }, 0);
+        }
+
+        function updateMonthlyBillsTable() {
+            const selectedYear = parseInt(document.getElementById('bills-year')?.value || new Date().getFullYear());
+            const tableBody = document.getElementById('monthly-bills-table');
+            tableBody.innerHTML = '';
+
+            const months = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            let previousBill = 0;
+
+            // Calculate bills for each month of the selected year
+            months.forEach((monthName, monthIndex) => {
+                const billAmount = getCardBillForPeriod(selectedYear, monthIndex);
+                
+                // Determine status
+                let status = '';
+                let statusClass = '';
+                
+                if (selectedYear < currentYear || (selectedYear === currentYear && monthIndex < currentMonth)) {
+                    status = 'Fechada';
+                    statusClass = 'bg-gray-100 text-gray-800';
+                } else if (selectedYear === currentYear && monthIndex === currentMonth) {
+                    status = 'Atual';
+                    statusClass = 'bg-blue-100 text-blue-800';
+                } else {
+                    status = 'Futura';
+                    statusClass = 'bg-yellow-100 text-yellow-800';
+                }
+
+                // Calculate comparison with previous month
+                let comparison = '';
+                let comparisonClass = '';
+                
+                if (previousBill > 0) {
+                    const difference = billAmount - previousBill;
+                    const percentChange = ((difference / previousBill) * 100);
+                    
+                    if (difference > 0) {
+                        comparison = `+${formatCurrency(difference)} (+${percentChange.toFixed(1)}%)`;
+                        comparisonClass = 'text-red-600';
+                    } else if (difference < 0) {
+                        comparison = `${formatCurrency(difference)} (${percentChange.toFixed(1)}%)`;
+                        comparisonClass = 'text-green-600';
+                    } else {
+                        comparison = 'Sem alteração';
+                        comparisonClass = 'text-gray-500';
+                    }
+                } else {
+                    comparison = billAmount > 0 ? 'Primeira fatura' : '-';
+                    comparisonClass = 'text-gray-500';
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ${monthName} ${selectedYear}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold ${billAmount > 0 ? 'text-red-600' : 'text-gray-400'}">
+                        ${billAmount > 0 ? formatCurrency(billAmount) : 'R$ 0,00'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                            ${status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${comparisonClass}">
+                        ${comparison}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+
+                // Update previous bill for next iteration (only if current bill > 0)
+                if (billAmount > 0) {
+                    previousBill = billAmount;
+                }
+            });
+
+            // If there are transactions that extend beyond the selected year, add next year months
+            const hasNextYearTransactions = cardTransactions.some(transaction => {
+                const transactionDate = new Date(transaction.date);
+                const lastInstallmentMonth = new Date(transactionDate.getFullYear(), transactionDate.getMonth() + transaction.installments - 1);
+                return lastInstallmentMonth.getFullYear() > selectedYear;
+            });
+
+            if (hasNextYearTransactions) {
+                const nextYear = selectedYear + 1;
+                months.forEach((monthName, monthIndex) => {
+                    const billAmount = getCardBillForPeriod(nextYear, monthIndex);
+                    
+                    if (billAmount > 0) {
+                        let comparison = '';
+                        let comparisonClass = '';
+                        
+                        if (previousBill > 0) {
+                            const difference = billAmount - previousBill;
+                            const percentChange = ((difference / previousBill) * 100);
+                            
+                            if (difference > 0) {
+                                comparison = `+${formatCurrency(difference)} (+${percentChange.toFixed(1)}%)`;
+                                comparisonClass = 'text-red-600';
+                            } else if (difference < 0) {
+                                comparison = `${formatCurrency(difference)} (${percentChange.toFixed(1)}%)`;
+                                comparisonClass = 'text-green-600';
+                            } else {
+                                comparison = 'Sem alteração';
+                                comparisonClass = 'text-gray-500';
+                            }
+                        } else {
+                            comparison = 'Primeira fatura';
+                            comparisonClass = 'text-gray-500';
+                        }
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                ${monthName} ${nextYear}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">
+                                ${formatCurrency(billAmount)}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Futura
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm ${comparisonClass}">
+                                ${comparison}
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+
+                        previousBill = billAmount;
+                    }
+                });
+            }
+        }
+
+        function updateCardTransactionsTable() {
+            const tableBody = document.getElementById('card-transactions-table');
+            tableBody.innerHTML = '';
+
+            cardTransactions.forEach(transaction => {
+                const transactionDate = new Date(transaction.date);
+                const billingMonth = getBillingMonth(transactionDate);
+                const billingInfo = `Fatura: ${billingMonth.month + 1}/${billingMonth.year}`;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${transactionDate.toLocaleDateString('pt-BR')}
+                        <div class="text-xs text-blue-600">${billingInfo}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${transaction.description}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">${formatCurrency(transaction.amount)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${transaction.installments}x</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatCurrency(transaction.installmentAmount)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button onclick="deleteCardTransaction(${transaction.id})" 
+                                class="text-red-600 hover:text-red-900 text-sm">Excluir</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function deleteCardTransaction(id) {
+            if (confirm('Tem certeza que deseja excluir esta despesa do cartão?')) {
+                cardTransactions = cardTransactions.filter(t => t.id !== id);
+                localStorage.setItem('cardTransactions', JSON.stringify(cardTransactions));
+                updateCardView();
+            }
+        }
+
+        // Monthly Summary Functions
+        function updateMonthlyView() {
+            const year = parseInt(document.getElementById('year-selector').value);
+            const monthlyGrid = document.getElementById('monthly-grid');
+            monthlyGrid.innerHTML = '';
+
+            const months = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+
+            months.forEach((month, index) => {
+                // Calculate budget for this specific month/year
+                let monthlyBudget = 0;
+                let monthlySpent = 0;
+                
+                // Calculate budget and spent for each account using the same method as dashboard
+                accounts.forEach(account => {
+                    monthlyBudget += getBudgetForPeriod(account, year, index);
+                    monthlySpent += getAccountSpentForPeriod(account, year, index);
+                });
+                
+                const balance = monthlyBudget - monthlySpent;
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-lg p-6';
+                card.innerHTML = `
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">${month} ${year}</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Orçamento:</span>
+                            <span class="font-semibold text-green-600">${formatCurrency(monthlyBudget)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Gastos:</span>
+                            <span class="font-semibold text-red-600">${formatCurrency(monthlySpent)}</span>
+                        </div>
+                        <div class="flex justify-between border-t pt-2">
+                            <span class="text-gray-600">Saldo:</span>
+                            <span class="font-bold ${balance >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                ${formatCurrency(balance)}
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" 
+                                 style="width: ${Math.min((monthlySpent / monthlyBudget) * 100, 100)}%"></div>
+                        </div>
+                    </div>
+                `;
+                monthlyGrid.appendChild(card);
+            });
+        }
+
+        function getCurrentMonthSpent() {
+            let totalSpent = 0;
+            accounts.forEach(account => {
+                totalSpent += getAccountSpent(account);
+            });
+            return totalSpent;
+        }
+
+        function getMonthlySpent(year, month) {
+            // Get regular transactions for the month (excluding transfers)
+            let spent = transactions
+                .filter(t => {
+                    const tDate = new Date(t.date);
+                    return tDate.getMonth() === month && 
+                           tDate.getFullYear() === year &&
+                           (!t.type || (t.type !== 'transfer_in' && t.type !== 'transfer_out')); // Exclude transfers but include regular transactions
+                })
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            // Add credit card expenses for the month
+            const cardSpent = cardTransactions.reduce((total, transaction) => {
+                const transactionDate = new Date(transaction.date);
+                const monthsFromTransaction = (year - transactionDate.getFullYear()) * 12 + 
+                                            (month - transactionDate.getMonth());
+                
+                if (monthsFromTransaction >= 0 && monthsFromTransaction < transaction.installments) {
+                    return total + transaction.installmentAmount;
+                }
+                return total;
+            }, 0);
+
+            return spent + cardSpent;
+        }
+
+        // Saldos Functions
+        function updateSaldosView() {
+            updateBalanceSummary();
+            updateBanksByType();
+        }
+
+        function updateBalanceSummary() {
+            let totalBalance = 0;
+            let checkingBalance = 0;
+            let savingsBalance = 0;
+            let investmentsBalance = 0;
+
+            bankAccounts.forEach(account => {
+                totalBalance += account.balance;
+                
+                if (account.type === 'Conta Corrente') {
+                    checkingBalance += account.balance;
+                } else if (account.type === 'Poupança') {
+                    savingsBalance += account.balance;
+                } else if (account.type === 'Investimentos') {
+                    investmentsBalance += account.balance;
+                }
+            });
+
+            document.getElementById('total-balance').textContent = formatCurrency(totalBalance);
+            document.getElementById('checking-balance').textContent = formatCurrency(checkingBalance);
+            document.getElementById('savings-balance').textContent = formatCurrency(savingsBalance);
+            document.getElementById('investments-balance').textContent = formatCurrency(investmentsBalance);
+        }
+
+        function updateBanksByType() {
+            const container = document.getElementById('banks-container');
+            container.innerHTML = '';
+
+            // Group accounts by bank
+            const accountsByBank = {};
+            bankAccounts.forEach(account => {
+                if (!accountsByBank[account.bank]) {
+                    accountsByBank[account.bank] = [];
+                }
+                accountsByBank[account.bank].push(account);
+            });
+
+            // Create cards for each bank
+            Object.keys(accountsByBank).forEach(bankName => {
+                const accounts = accountsByBank[bankName];
+                const bankTotal = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+
+                const bankCard = document.createElement('div');
+                bankCard.className = 'bg-white rounded-xl shadow-lg mb-6';
+                
+                bankCard.innerHTML = `
+                    <div class="px-6 py-4 bg-gray-50 border-b rounded-t-xl">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-800">${bankName}</h3>
+                            <span class="text-lg font-bold ${bankTotal >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                Total: ${formatCurrency(bankTotal)}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            ${accounts.map(account => `
+                                <div class="bg-gray-50 rounded-lg p-4 border">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h4 class="font-semibold text-gray-700">${account.type}</h4>
+                                        <span class="text-xs px-2 py-1 rounded-full ${getAccountTypeColor(account.type)}">
+                                            ${account.type}
+                                        </span>
+                                    </div>
+                                    <p class="text-2xl font-bold ${account.balance >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                        ${formatCurrency(account.balance)}
+                                    </p>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button onclick="adjustBalance(${account.id}, 'add')" 
+                                                class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200">
+                                            + Adicionar
+                                        </button>
+                                        <button onclick="adjustBalance(${account.id}, 'subtract')" 
+                                                class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200">
+                                            - Subtrair
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(bankCard);
+            });
+
+            if (Object.keys(accountsByBank).length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                        <p class="text-gray-500 text-lg">Nenhuma conta bancária cadastrada.</p>
+                        <p class="text-gray-400 mt-2">Vá para a página de Lançamentos para adicionar suas contas.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function getAccountTypeColor(type) {
+            switch(type) {
+                case 'Conta Corrente': return 'bg-green-100 text-green-700';
+                case 'Poupança': return 'bg-yellow-100 text-yellow-700';
+                case 'Investimentos': return 'bg-purple-100 text-purple-700';
+                default: return 'bg-gray-100 text-gray-700';
+            }
+        }
+
+        function adjustBalance(accountId, operation) {
+            const amount = prompt(`Digite o valor para ${operation === 'add' ? 'adicionar' : 'subtrair'}:`);
+            if (!amount || isNaN(amount)) return;
+
+            const value = parseFloat(amount);
+            const account = bankAccounts.find(acc => acc.id === accountId);
+            
+            if (account) {
+                if (operation === 'add') {
+                    account.balance += value;
+                } else {
+                    account.balance -= value;
+                }
+                
+                localStorage.setItem('bankAccounts', JSON.stringify(bankAccounts));
+                updateSaldosView();
+                updateBankAccountSelectors();
+                alert(`Saldo ${operation === 'add' ? 'adicionado' : 'subtraído'} com sucesso!`);
+            }
+        }
+
+        // Analysis Functions
+        function updateAnalysisView() {
+            const selectedYear = parseInt(document.getElementById('analysis-year')?.value || 2025);
+            
+            // Calculate annual data for each category
+            const categoryData = [];
+            let totalAnnualBudget = 0;
+            let totalAnnualSpent = 0;
+            
+            accounts.forEach(account => {
+                let annualBudget = 0;
+                let annualSpent = 0;
+                
+                // Sum all 12 months for this category
+                for (let month = 0; month < 12; month++) {
+                    annualBudget += getBudgetForPeriod(account, selectedYear, month);
+                    annualSpent += getAccountSpentForPeriod(account, selectedYear, month);
+                }
+                
+                totalAnnualBudget += annualBudget;
+                totalAnnualSpent += annualSpent;
+                
+                if (annualBudget > 0 || annualSpent > 0) {
+                    categoryData.push({
+                        name: account,
+                        budget: annualBudget,
+                        spent: annualSpent,
+                        balance: annualBudget - annualSpent
+                    });
+                }
+            });
+            
+            // Sort by spent amount (descending)
+            categoryData.sort((a, b) => b.spent - a.spent);
+            
+            // Update summary cards
+            document.getElementById('analysis-total-budget').textContent = formatCurrency(totalAnnualBudget);
+            document.getElementById('analysis-total-spent').textContent = formatCurrency(totalAnnualSpent);
+            document.getElementById('analysis-total-balance').textContent = formatCurrency(totalAnnualBudget - totalAnnualSpent);
+            
+            // Update top category
+            if (categoryData.length > 0) {
+                const topCategory = categoryData[0];
+                document.getElementById('analysis-top-category').textContent = topCategory.name;
+                document.getElementById('analysis-top-amount').textContent = formatCurrency(topCategory.spent);
+            } else {
+                document.getElementById('analysis-top-category').textContent = '-';
+                document.getElementById('analysis-top-amount').textContent = 'R$ 0,00';
+            }
+            
+            // Update analysis table
+            updateAnalysisTable(categoryData, totalAnnualBudget, totalAnnualSpent);
+            
+            // Update charts
+            updateTopCategoriesChart(categoryData);
+            updateTrendCategorySelector(categoryData);
+            updateMonthlyTrend();
+        }
+
+        function updateAnalysisTable(categoryData, totalBudget, totalSpent) {
+            const tableBody = document.getElementById('analysis-table');
+            tableBody.innerHTML = '';
+            
+            categoryData.forEach(category => {
+                const budgetPercentage = totalBudget > 0 ? (category.budget / totalBudget * 100) : 0;
+                const spentPercentage = totalSpent > 0 ? (category.spent / totalSpent * 100) : 0;
+                const progress = category.budget > 0 ? Math.min((category.spent / category.budget * 100), 100) : 0;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${category.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">${formatCurrency(category.budget)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">${formatCurrency(category.spent)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold ${category.balance >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${formatCurrency(category.balance)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium">${budgetPercentage.toFixed(1)}%</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-purple-600 font-medium">${spentPercentage.toFixed(1)}%</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="h-2 rounded-full ${progress > 100 ? 'bg-red-500' : progress > 80 ? 'bg-yellow-500' : 'bg-green-500'}" 
+                                     style="width: ${Math.min(progress, 100)}%"></div>
+                            </div>
+                            <span class="text-xs font-medium ${progress > 100 ? 'text-red-600' : 'text-gray-600'}">${progress.toFixed(0)}%</span>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateTopCategoriesChart(categoryData) {
+            const chartContainer = document.getElementById('top-categories-chart');
+            chartContainer.innerHTML = '';
+            
+            const top5 = categoryData.slice(0, 5);
+            const maxSpent = top5.length > 0 ? top5[0].spent : 0;
+            
+            if (maxSpent === 0) {
+                chartContainer.innerHTML = '<p class="text-gray-500 text-center py-8">Nenhum dado disponível</p>';
+                return;
+            }
+            
+            top5.forEach((category, index) => {
+                const percentage = maxSpent > 0 ? (category.spent / maxSpent * 100) : 0;
+                const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-blue-500'];
+                
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'flex items-center space-x-3';
+                categoryDiv.innerHTML = `
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium text-gray-700">${category.name}</span>
+                            <span class="text-sm font-semibold text-gray-900">${formatCurrency(category.spent)}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="${colors[index]} h-3 rounded-full transition-all duration-500" 
+                                 style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+                chartContainer.appendChild(categoryDiv);
+            });
+        }
+
+        function updateTrendCategorySelector(categoryData) {
+            const selector = document.getElementById('trend-category');
+            const currentValue = selector.value;
+            
+            selector.innerHTML = '<option value="">Selecione uma categoria</option>';
+            
+            categoryData.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.name;
+                option.textContent = `${category.name} (${formatCurrency(category.spent)})`;
+                if (category.name === currentValue) {
+                    option.selected = true;
+                }
+                selector.appendChild(option);
+            });
+        }
+
+        function updateMonthlyTrend() {
+            const selectedCategory = document.getElementById('trend-category')?.value;
+            const selectedYear = parseInt(document.getElementById('analysis-year')?.value || 2025);
+            const chartContainer = document.getElementById('monthly-trend-chart');
+            
+            if (!selectedCategory) {
+                chartContainer.innerHTML = '<p class="text-gray-500 text-center py-8">Selecione uma categoria para ver a evolução mensal</p>';
+                return;
+            }
+            
+            chartContainer.innerHTML = '';
+            
+            const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const monthlyData = [];
+            let maxAmount = 0;
+            
+            // Calculate monthly data for selected category
+            for (let month = 0; month < 12; month++) {
+                const budget = getBudgetForPeriod(selectedCategory, selectedYear, month);
+                const spent = getAccountSpentForPeriod(selectedCategory, selectedYear, month);
+                monthlyData.push({ month: months[month], budget, spent });
+                maxAmount = Math.max(maxAmount, budget, spent);
+            }
+            
+            if (maxAmount === 0) {
+                chartContainer.innerHTML = '<p class="text-gray-500 text-center py-8">Nenhum dado disponível para esta categoria</p>';
+                return;
+            }
+            
+            monthlyData.forEach(data => {
+                const budgetPercentage = maxAmount > 0 ? (data.budget / maxAmount * 100) : 0;
+                const spentPercentage = maxAmount > 0 ? (data.spent / maxAmount * 100) : 0;
+                
+                const monthDiv = document.createElement('div');
+                monthDiv.className = 'flex items-center space-x-3';
+                monthDiv.innerHTML = `
+                    <div class="w-8 text-xs font-medium text-gray-600">${data.month}</div>
+                    <div class="flex-1 space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: ${budgetPercentage}%"></div>
+                            </div>
+                            <span class="text-xs text-green-600 w-16">${formatCurrency(data.budget)}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-red-500 h-2 rounded-full" style="width: ${spentPercentage}%"></div>
+                            </div>
+                            <span class="text-xs text-red-600 w-16">${formatCurrency(data.spent)}</span>
+                        </div>
+                    </div>
+                `;
+                chartContainer.appendChild(monthDiv);
+            });
+            
+            // Add legend
+            const legendDiv = document.createElement('div');
+            legendDiv.className = 'mt-4 flex justify-center space-x-6 text-xs';
+            legendDiv.innerHTML = `
+                <div class="flex items-center space-x-1">
+                    <div class="w-3 h-3 bg-green-500 rounded"></div>
+                    <span>Orçamento</span>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <div class="w-3 h-3 bg-red-500 rounded"></div>
+                    <span>Gastos</span>
+                </div>
+            `;
+            chartContainer.appendChild(legendDiv);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTransactionForm();
+            initializeBankForms();
+            updateAccountsGrid();
+            updateBankAccountsTable();
+            
+            // Set default values for dashboard selectors
+            const currentDate = new Date();
+            document.getElementById('dashboard-year').value = 2025;
+            document.getElementById('dashboard-month').value = currentDate.getMonth();
+            document.getElementById('year-selector').value = 2025;
+            document.getElementById('bills-year').value = 2025;
+            
+            // Set default values for bill detail selectors
+            document.getElementById('bill-year-selector').value = 2025;
+            document.getElementById('bill-month-selector').value = currentDate.getMonth();
+            
+            // Set default value for analysis year
+            document.getElementById('analysis-year').value = 2025;
+            
+            updateDashboard();
+            
+            // Set current date for card form
+            document.getElementById('card-date').value = new Date().toISOString().split('T')[0];
+            
+            // Initialize billing settings
+            loadBillingSettings();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97a0cd36e0d4429c',t:'MTc1NzAyMzY2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
